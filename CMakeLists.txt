@@ -1,0 +1,22 @@
+cmake_minimum_required(VERSION 3.11.0)
+
+project(tribe VERSION 0.0.1 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTORCC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_PREFIX_PATH qt5application)
+
+find_package(Qt6 COMPONENTS Widgets REQUIRED)
+find_package(SQLite3 REQUIRED)
+
+add_executable(tribe
+    main.cpp
+)
+
+include_directories(${SQLite3_INCLUDE_DIRS})
+target_link_libraries(tribe PRIVATE Qt6::Widgets)
+target_link_libraries(tribe PRIVATE SQLite::SQLite3)
