@@ -13,10 +13,12 @@ set(CMAKE_PREFIX_PATH qt5application)
 find_package(Qt6 COMPONENTS Widgets REQUIRED)
 find_package(SQLite3 REQUIRED)
 
-add_executable(tribe
-    main.cpp
-)
+file(GLOB_RECURSE SRC_FILES data/*.cpp)
+message(STATUS "SRC_FILES: " ${SRC_FILES})
+
+add_executable(tribe ${SRC_FILES} main.cpp)
 
 include_directories(${SQLite3_INCLUDE_DIRS})
+
 target_link_libraries(tribe PRIVATE Qt6::Widgets)
 target_link_libraries(tribe PRIVATE SQLite::SQLite3)
