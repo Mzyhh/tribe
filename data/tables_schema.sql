@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS family (
+CREATE TABLE IF NOT EXISTS families (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL
 );
@@ -26,3 +26,11 @@ CREATE TABLE IF NOT EXISTS family_ties (
     FOREIGN KEY (human_id1) REFERENCES people (id),
     FOREIGN KEY (human_id2) REFERENCES people (id)
 );
+
+INSERT INTO family_tie_types (id, title)
+VALUES
+    (1, 'Vertical'),
+    (2, 'Horizontal'),
+    (3, 'Marriage'),
+    (4, 'Civil marriage')
+;
