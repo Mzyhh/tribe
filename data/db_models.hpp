@@ -19,6 +19,8 @@ class Human
     uint id; 
     /// @not_null
     std::string name;
+    /// @fk=families
+    const Family& family;
     std::string description;
     std::chrono::year_month_day birthday;
     std::chrono::year_month_day deathday;
@@ -38,6 +40,8 @@ class FamilyTie {
     const Human& lhuman;
     /// @fk=people
     const Human& rhuman;
+    /// @fk=family_tie_types
+    const FamilyTieType& type;
 };
 
 #endif // __DB_MODELS_H__
