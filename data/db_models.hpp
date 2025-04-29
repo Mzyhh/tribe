@@ -3,27 +3,42 @@
 #include <string>
 #include <chrono>
 
-class Human {
+
+/// @table_name=families
+class Family { 
+    /// @pk @autoincrement
     uint id;
+    /// @not_null
+    std::string name;
+};
+
+/// @table_name=people
+class Human
+{
+    /// @pk @autoincrement
+    uint id; 
+    /// @not_null
     std::string name;
     std::string description;
     std::chrono::year_month_day birthday;
     std::chrono::year_month_day deathday;
 };
 
-class Family {
+/// @table_name=family_tie_types
+class FamilyTieType {
+    /// @pk @autoincrement
     uint id;
-    std::string name;
+    /// @not_null @unique
+    std::string title;
 };
 
+/// @table_name=family_ties
 class FamilyTie {
+    /// @fk=people
     const Human& lhuman;
+    /// @fk=people
     const Human& rhuman;
 };
 
-class FamilyTieType {
-    uint id;
-    std::string title;
-};
 #endif // __DB_MODELS_H__
 
