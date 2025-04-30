@@ -2,6 +2,7 @@ import clang.cindex as cl
 from jinja2 import Template
 import typing
 import re
+import sys
 
 
 def parse_annotations(comment: str) -> dict[typing.Any, typing.Any]:
@@ -16,7 +17,7 @@ def cpp2sql_type(cpp_type: str, annotations={}) -> str:
         bool -> BOOLEAN,
         year_month_day -> DATE,
         time_point -> DATETIME.'''
-
+    print(cpp_type, annotations)
     type_map = {
         'int': 'INTEGER',
         'uint': 'INTEGER',
@@ -33,8 +34,6 @@ def cpp2sql_type(cpp_type: str, annotations={}) -> str:
         base_type += " NOT NULL"
     if 'fk' in annotations:
         base_type = "INTEGER NOT NULL"
-    if 'autoincrement' in annotations:
-        base_type += " AUTOINCREMENT"
     if 'unique' in annotations:
         base_type += " UNIQUE"
     if 'not_null' in annotations:
@@ -57,7 +56,7 @@ def parse_cpp(filename: str, only_one_file=True) -> typing.Dict[typing.Any, typi
             "name", "cpp_type", "annotations", "sql_type".'''
 
     index = cl.Index.create()
-    translation_unit = index.parse(filename, args=["-std=c++17"])
+    translation_unit = index.parse(filename, args=["-std=c++20"])
     tables = {} 
 
     for node in translation_unit.cursor.walk_preorder():
@@ -78,7 +77,13 @@ def parse_cpp(filename: str, only_one_file=True) -> typing.Dict[typing.Any, typi
                 annotations = parse_annotations(child_raw_comment)
                 if child.kind == cl.CursorKind.FIELD_DECL:
                     cpp_type = child.type.spelling
-                    print(cpp_type, end=' ')
+                    print(f"""
+                        Field: {child.spelling}
+                          Type.spelling: {child.type.spelling}
+                          Type.kind: {child.type.kind}
+                          Decl.type: {child.get_definition().type.spelling if child.get_definition() else None}
+                          Final type: {cpp_type}
+                        """)
                     sql_type = cpp2sql_type(cpp_type, annotations)
                     table["fields"].append({
                         "name": child.spelling,
@@ -95,10 +100,10 @@ def parse_cpp(filename: str, only_one_file=True) -> typing.Dict[typing.Any, typi
     return tables
 
 if __name__ == "__main__":
-    classes = parse_cpp("db_models.hpp")
+    classes = parse_cpp(sys.argv[1])
     template = Template("""
     {% for table_name, class in classes.items() %}
-    CREATE TABLE {{ table_name }} (
+    CREATE TABLE IF NOT EXISTS {{ table_name }} (
         {% for field in class.fields %}
         {{ field.name }} {{ field.sql_type }}{% if not loop.last or class.primary_keys or class.foreign_keys %},{% endif %}
         {% endfor %}
